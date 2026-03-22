@@ -1,11 +1,16 @@
-FROM maven:3.9.6-eclipse-temurin-17
+FROM maven:3.9.6-eclipse-temurin-17 as maven
 
-RUN mkdir checkdev_eureka
 
-WORKDIR checkdev_eureka
+WORKDIR /app
 
-COPY . .
+COPY . /app
 
-RUN mvn package -Dmaven.test.skip=true
+RUN mvn package
 
-CMD ["java", "-jar", "target/eureka-0.0.1-SNAPSHOT.jar"]
+FROM eclipse-temurin:17-jdk
+
+WORKDIR /app
+
+COPY --from=maven /app/target/eureka-0.0.1-SNAPSHOT.jar app.jar
+
+CMD ["java", "-jar", "app.jar"]
